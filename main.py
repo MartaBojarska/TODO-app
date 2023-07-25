@@ -1,12 +1,21 @@
+import psycopg2
 from uuid import UUID
 from fastapi import FastAPI, HTTPException
 from dtos.create_todo import CreateTodoDTO
 from dtos.modify_todo import ModifyTodoDTO
 
-from models.todo import Todo
+from models.todo import NewTodo, Todo
 
 todo_list = {}
 app = FastAPI()
+conn = psycopg2.connect(
+    database="todos",
+    host="localhost",
+    user="postgres",
+    password="zaq1WSX",
+    port="5432",
+)
+cursor = conn.cursor()
 
 
 @app.get("/todos")
@@ -16,9 +25,10 @@ def get_todos():
 
 @app.post("/todos")
 def create_todo(dto: CreateTodoDTO):
-    todo = Todo(dto.name)
-    todo_list[todo.id] = todo
-    return todo
+    cursor.execute("INSERT INTO todos(name) VALUES(%s) RETURNING *;", (dto.name,))
+    conn.commit()
+    todo_data = cursor.fetchone()
+    return NewTodo(*todo_data)
 
 
 @app.get("/todos/{todo_id}")

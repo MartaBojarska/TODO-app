@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
@@ -22,3 +23,12 @@ class Todo:
             self.finished_at = datetime.now(timezone.utc)
             return
         self.finished_at = None
+
+
+@dataclass
+class NewTodo:
+    id: int
+    name: str
+    is_finished: bool
+    created_at: datetime
+    finished_at: datetime | None
